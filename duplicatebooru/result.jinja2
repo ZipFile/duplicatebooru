@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+	<head>
+		<title>DuplicateBooru Results</title>
+		<style>
+:root, textarea {background: #222; color: #aaa; font-family: monospace;}
+textarea {resize: vertical;}
+textarea {border: 1px solid #aaa; display: block; width: 100%; box-sizing: border-box; }
+.dupe {color: darkred;}
+#raw_data_inner {display: flex; flex-wrap: wrap;}
+#raw_data_inner .raw-data {width: 50%;}
+		</style>
+	</head>
+	<body>
+		<div id="pixel_hashes">
+			<h1>Info</h1>
+			<div id="visual_comparison_inner">
+				<table>
+					<tr>
+						<th>Hash</th>
+						<th>Format</th>
+						<th>Width</th>
+						<th>Height</th>
+						<th>URL</th>
+					</tr>
+					{% for info in infos %}
+					{% if info.dupe %}
+					<tr class="dupe">
+					{% else %}
+					<tr>
+					{% endif %}
+						<td>{{ info.hash }}</td>
+						<td>{{ info.format }}</td>
+						<td>{{ info.width }}</td>
+						<td>{{ info.height }}</td>
+						<td>{{ info.url }}</td>
+					</tr>
+					{% endfor %}
+				</table>
+			</div>
+			<p>* <span style="color: darkred">red</span> = duplicate</p>
+		</div>
+		<div id="raw_data" class="collapsed">
+			<h1>Raw Data</h1>
+			<div id="raw_data_inner">
+				{% for info in infos %}
+				<div class="raw-data">
+					<h2>{{ info.url }}</h2>
+					{% if info.error %}
+					<textarea readonly rows="25">{{ info.error }}</textarea>
+					{% else %}
+					<textarea readonly rows="25">{{ info.magick | tojson(indent=2) }}</textarea>
+					{% endif %}
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+	</body>
+</html>

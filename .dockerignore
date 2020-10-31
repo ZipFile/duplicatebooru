@@ -1,0 +1,9 @@
+build
+dist
+Dockerfile
+docker-compose.yml
+*.egg-info
+env
+.git
+**/*.pyc
+**/__pycache__
