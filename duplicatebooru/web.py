@@ -26,7 +26,9 @@ async def magick(request):
 class Index(View):
     @template('index.jinja2')
     async def get(self):
-        return {}
+        return {
+            "debug": self.request.app["debug"],
+        }
 
     async def post(self):
         data = await self.request.post()
@@ -69,5 +71,8 @@ class Index(View):
         return render_template(
             'result.jinja2',
             self.request,
-            {"infos": infos},
+            {
+                "debug": self.request.app["debug"],
+                "infos": infos,
+            },
         )

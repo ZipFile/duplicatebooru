@@ -29,14 +29,18 @@ async def teardown_aioredis(app):
     del app['redis']
 
 
-def main():
-    logging.basicConfig(level=logging.DEBUG)
+def main(debug=True):
+    if debug:
+        logging.basicConfig(level=logging.DEBUG)
+
     app = Application()
 
     setup_aiohttp_jinja2(
         app,
         loader=FileSystemLoader(os.path.dirname(__file__)),
     )
+
+    app['debug'] = debug
 
     app.router.add_routes(routes)
 
