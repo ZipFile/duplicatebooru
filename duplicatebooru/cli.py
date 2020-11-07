@@ -1,7 +1,7 @@
 import logging
 import os
 
-from aiohttp.web import Application, run_app
+from aiohttp.web import Application, run_app, static
 
 from aiohttp_jinja2 import setup as setup_aiohttp_jinja2
 
@@ -41,8 +41,10 @@ def main(debug=True):
     )
 
     app['debug'] = debug
+    static_path = os.path.join(os.path.dirname(__file__), 'static')
 
     app.router.add_routes(routes)
+    app.add_routes([static('/static', static_path)])
 
     redis_url = os.environ.get('REDIS_URL')
     port = int(os.environ.get('PORT', '8080'))
