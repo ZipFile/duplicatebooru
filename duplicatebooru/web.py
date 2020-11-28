@@ -1,39 +1,49 @@
 from asyncio import gather
+from re import split as re_split
+from traceback import format_exception
+from typing import Any, Dict, List
 
-from aiohttp import ClientSession
-from aiohttp.web import RouteTableDef, View, json_response
+from aiohttp import ClientSession, ClientTimeout
+from aiohttp.web import Request, Response, RouteTableDef, View, json_response
 
 from aiohttp_jinja2 import render_template, template
-
 
 from .process import Info, process
 
 
 routes = RouteTableDef()
+DEFAULT_TIMEOUT = ClientTimeout(total=30)
+
+
+def extract_urls(s: str) -> List[str]:
+    return re_split(r'\s+(?=https?://)', s.strip())
 
 
 @routes.view("/api")
-async def magick(request):
+async def magick(request: Request) -> Response:
     url = request.query["url"]
 
-    async with ClientSession() as session:
-        info = await process(session, url)
+    async with ClientSession(timeout=DEFAULT_TIMEOUT) as session:
+        info = await process(
+            session, url,
+            fetch=request.app['fetcher'],
+            cache=request.app['cache'],
+        )
 
-    return json_response(info)
+    return json_response(info.magick)
 
 
 @routes.view("/")
 class Index(View):
     @template('index.jinja2')
-    async def get(self):
+    async def get(self) -> Dict[str, Any]:
         return {
             "debug": self.request.app["debug"],
         }
 
-    async def post(self):
+    async def post(self) -> Response:
         data = await self.request.post()
-        urls = data['urls']
-        urls = sorted(set(urls.splitlines()) - {''})
+        urls = sorted(set(extract_urls(data['urls'])))
 
         if len(urls) > 5:
             return render_template(
@@ -49,9 +59,13 @@ class Index(View):
                 {"message": "too few urls"},
             )
 
-        async with ClientSession() as session:
+        async with ClientSession(timeout=DEFAULT_TIMEOUT) as session:
             raw_infos = await gather(*[
-                process(session, url, self.request.app['cache'])
+                process(
+                    session, url,
+                    fetch=self.request.app['fetcher'],
+                    cache=self.request.app['cache'],
+                )
                 for url in urls
             ], return_exceptions=True)
 
@@ -60,7 +74,14 @@ class Index(View):
 
         for url, info in zip(urls, raw_infos):
             if isinstance(info, Exception):
-                info = Info(url=url, error=repr(info))
+                info = Info(
+                    url=url,
+                    error='\n'.join(format_exception(
+                        etype=type(info),
+                        value=info,
+                        tb=info.__traceback__,
+                    )),
+                )
             else:
                 h = info.hash
                 info.dupe = h in hashes

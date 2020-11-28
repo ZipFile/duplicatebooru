@@ -9,7 +9,7 @@ with open("requirements.in") as f:
 
 setuptools.setup(
     name="duplicatebooru",
-    version="0.0.1",
+    version="0.0.2",
     description="Detect pixel-identical images",
     packages=setuptools.find_packages(),
     entry_points={
@@ -22,9 +22,5 @@ setuptools.setup(
         "Operating System :: POSIX",
     ],
     python_requires='>=3.8',
-    install_requires=[
-       'aiohttp',
-       'aiohttp-jinja2',
-       'aioredis',
-    ],
+    install_requires=requirements,
 )

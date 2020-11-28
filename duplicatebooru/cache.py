@@ -1,11 +1,10 @@
 from abc import ABCMeta, abstractmethod
-from contextlib import asynccontextmanager
 from json import dumps as json_dumps, loads as json_loads
-from typing import Any, Iterator
+from typing import Any
 
-from aioredis import Redis, create_redis_pool
+from aioredis import Redis
 
-from cachetools import LRUCache
+from cachetools import Cache as CTCache, LRUCache
 
 
 class Cache(metaclass=ABCMeta):
@@ -27,6 +26,8 @@ class NoopCache(Cache):
 
 
 class MemoryCache(Cache):
+    cache: CTCache
+
     def __init__(self, maxsize: int = 100):
         self.cache = LRUCache(maxsize=maxsize)
 
@@ -54,14 +55,3 @@ class RedisCache(Cache):
 
     async def set(self, url: str, data: Any) -> None:
         await self.redis.set(url, json_dumps(data))
-
-
-@asynccontextmanager
-async def redis(cls, url: str) -> Iterator[Redis]:
-    redis = await create_redis_pool(url)
-
-    try:
-        yield redis
-    finally:
-        redis.close()
-        await redis.wait_closed()

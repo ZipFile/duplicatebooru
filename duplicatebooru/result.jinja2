@@ -2,58 +2,115 @@
 <html>
 	<head>
 		<title>DuplicateBooru Results</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<style>
 :root, textarea {background: #222; color: #aaa; font-family: monospace;}
 textarea {resize: vertical;}
 textarea {border: 1px solid #aaa; display: block; width: 100%; box-sizing: border-box; }
-.dupe {color: darkred;}
-#raw_data_inner {display: flex; flex-wrap: wrap;}
-#raw_data_inner .raw-data {width: 50%;}
+.dupe {color: #ff6c6c;}
+.copy {cursor: pointer; opacity: 0.5;}
+table {border-collapse: collapse; width: 100%; table-layout: fixed; max-width: 100ex;}
+td {border: 1px solid #666; padding: 3px 6px; overflow-wrap: break-word; width: auto;}
+td.property {width: 24ex;}
 		</style>
 	</head>
 	<body>
-		<div id="pixel_hashes">
-			<h1>Info</h1>
-			<div id="visual_comparison_inner">
+		<script>
+const infos = [
+	{% for info in infos %}
+	{{ (info.magick or None) | tojson }},
+	{% endfor %}
+];
+		</script>
+		<div id="details">
+			{% for info in infos %}
+			<div class="details">
+				<h2>{{ info.url }}</h2>
+				{% if info.src and info.src != info.url %}
+				<p>{{ info.src }}</p>
+				{% endif %}
+
+				{% if info.error %}
+				Error:
+				<textarea readonly rows="3">{{ info.error }}</textarea>
+				{% else %}
+
 				<table>
 					<tr>
-						<th>Hash</th>
-						<th>Format</th>
-						<th>Width</th>
-						<th>Height</th>
-						<th>URL</th>
+						<td class="property">Duplicate</td>
+						<td class="value">{% if info.dupe %}<span class="dupe">yes</span>{% else %}no{%endif%}</td>
 					</tr>
-					{% for info in infos %}
-					{% if info.dupe %}
-					<tr class="dupe">
-					{% else %}
 					<tr>
-					{% endif %}
-						<td>{{ info.hash }}</td>
-						<td>{{ info.format }}</td>
-						<td>{{ info.width }}</td>
-						<td>{{ info.height }}</td>
-						<td>{{ info.url }}</td>
+						<td class="property">Hash</td>
+						<td class="value">{{ info.hash }}</td>
 					</tr>
-					{% endfor %}
-				</table>
-			</div>
-			<p>* <span style="color: darkred">red</span> = duplicate</p>
-		</div>
-		<div id="raw_data" class="collapsed">
-			<h1>Raw Data</h1>
-			<div id="raw_data_inner">
-				{% for info in infos %}
-				<div class="raw-data">
-					<h2>{{ info.url }}</h2>
-					{% if info.error %}
-					<textarea readonly rows="25">{{ info.error }}</textarea>
-					{% else %}
-					<textarea readonly rows="25">{{ info.magick | tojson(indent=2) }}</textarea>
+					<tr>
+						<td class="property">Image size</td>
+						<td class="value">{{ info.width }}x{{ info.height }}</td>
+					</tr>
+
+					{% if info.magick %}
+
+					<tr>
+						<td class="property">File size</td>
+						<td class="value">{{ info.magick.filesize.rstrip("B") | filesizeformat }}</td>
+					</tr>
+					<tr>
+						<td class="property">Format</td>
+						<td class="value">{{ info.format }}</td>
+					</tr>
+					<tr>
+						<td class="property">Colorspace</td>
+						<td class="value">{{ info.magick.colorspace }}</td>
+					</tr>
+					<tr>
+						<td class="property">Interlacing</td>
+						<td class="value">{{ info.magick.interlace }}</td>
+					</tr>
+					<tr>
+						<td class="property">Megapixels</td>
+						<td class="value">{{ (info.magick.pixels / 1000000) | round(2) }}</td>
+					</tr>
+					<tr>
+						<td class="property">Orientation</td>
+						<td class="value">{{ info.magick.orientation }}</td>
+					</tr>
+					<tr>
+						<td class="property">Quality</td>
+						<td class="value">{{ info.magick.quality }}</td>
+					</tr>
+					<tr>
+						<td class="property">Mime type</td>
+						<td class="value">{{ info.magick.mimeType }}</td>
+					</tr>
+					<tr>
+						<td class="property">Color depth</td>
+						<td class="value">{{ info.magick.depth }}-bit</td>
+					</tr>
+					{% if info.magick.properties["exif:MakerNote"] %}
+					<tr>
+						<td class="property">Maker note</td>
+						<td class="value">{{ info.magick.properties["exif:MakerNote"] }}</td>
+					</tr>
 					{% endif %}
-				</div>
-				{% endfor %}
+					{% if info.magick.properties["jpeg:sampling-factor"] %}
+					<tr>
+						<td class="property">JPEG sampling-factor</td>
+						<td class="value">{{ info.magick.properties["jpeg:sampling-factor"] }}</td>
+					</tr>
+					{% endif %}
+					{% endif %}
+					<tr>
+						<td class="property">Cached</td>
+						<td class="value">{{ "yes" if info.magick.__from_cache else "no" }}</td>
+					</tr>
+					<tr>
+						<td class="extra" colspan="2"><a class="copy" onclick="navigator.clipboard.writeText(JSON.stringify(infos[{{loop.index0}}], null, '\t'))">Copy raw info to clipboard</a></td>
+					</tr>
+				</table>
+				{% endif %}
 			</div>
+			{% endfor %}
 		</div>
 	</body>
 </html>

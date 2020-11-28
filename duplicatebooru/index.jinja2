@@ -2,17 +2,34 @@
 <html>
 	<head>
 		<title>DuplicateBooru</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<style>
-:root, textarea, button {background: #222; color: #aaa; font: monospace;}
+:root, textarea, button {background: #222; color: #aaa; font-family: monospace;}
 textarea {resize: vertical;}
-textarea, button {border: 1px solid #aaa; display: block; width: 100%; box-sizing: border-box;}
+textarea, button {border: 1px solid #aaa; padding: 2px; display: block; width: 100%; box-sizing: border-box;}
+button {max-width: 200px; margin: 1em auto 0; padding: 1em;}
+form {max-width: 600px; margin: 0 auto;}
 		</style>
 	</head>
 	<body>
-		<form method="post" action="/">
+		<form id="default" method="post" action="/">
+			<p>Paste 2-4 image urls into the field below and press submit button, it'll tell you whether they are pixel-identical duplicates.</p>
 			<label>URLS:</label>
-			<textarea name="urls" rows="3"></textarea>
-			<button type="submit">Check</button>
+			<textarea id="urls" name="urls" rows="5" placeholder="https://danbooru.donmai.us/posts/4130166
+https://i.pximg.net/img-original/img/2020/10/03/00/15/02/84758830_p0.jpg
+https://pbs.twimg.com/media/EjUrEb_U4AA6zqs?format=jpg&name=large"></textarea>
+			<button type="submit">Submit</button>
 		</form>
+		<script>
+const urls = document.getElementById("urls");
+
+urls.style.resize = "none";
+urls.style.overflow = "hidden";
+
+urls.addEventListener("input", function() {
+	this.style.height = "auto";
+	this.style.height = `${this.scrollHeight + 4}px`;
+}, true);
+		</script>
 	</body>
 </html>

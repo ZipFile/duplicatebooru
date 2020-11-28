@@ -1,10 +1,11 @@
 from asyncio import CancelledError, TimeoutError, wait_for
 from asyncio.subprocess import PIPE, create_subprocess_shell
 from json import loads as json_loads
+from typing import Any
 
 
 class MagickError(Exception):
-    def __init__(self, returncode: int, message: str):
+    def __init__(self, returncode: int, message: str) -> None:
         self.returncode = returncode
         self.message = message
 
@@ -14,7 +15,7 @@ class MagickError(Exception):
         return f'Exit Code: {self.returncode}\nMessage:\n{self.message}'
 
 
-async def get_info(image: bytes, timeout: int = 30):
+async def get_info(image: bytes, timeout: int = 30) -> Any:
     proc = await create_subprocess_shell(
         "convert - json:-",
         stdin=PIPE,
@@ -34,4 +35,4 @@ async def get_info(image: bytes, timeout: int = 30):
     if proc.returncode == 0:
         return json_loads(stdout)
 
-    raise MagickError(proc.returncode, stderr)
+    raise MagickError(proc.returncode, stderr.decode("utf-8"))
