@@ -33,6 +33,6 @@ async def get_info(image: bytes, timeout: int = 30) -> Any:
     assert proc.returncode is not None
 
     if proc.returncode == 0:
-        return json_loads(stdout)
+        return json_loads(stdout.decode('utf-8', 'replace'))
 
-    raise MagickError(proc.returncode, stderr.decode("utf-8"))
+    raise MagickError(proc.returncode, stderr.decode('utf-8', 'replace'))
