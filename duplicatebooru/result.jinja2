@@ -87,6 +87,12 @@ const infos = [
 						<td class="property">Color depth</td>
 						<td class="value">{{ info.magick.depth }}-bit</td>
 					</tr>
+					{% if info.magick.properties["exif:Software"] %}
+					<tr>
+						<td class="property">Software</td>
+						<td class="value">{{ info.magick.properties["exif:Software"] }}</td>
+					</tr>
+					{% endif %}
 					{% if info.magick.properties["exif:MakerNote"] %}
 					<tr>
 						<td class="property">Maker note</td>
