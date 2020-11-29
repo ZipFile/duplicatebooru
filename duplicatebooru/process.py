@@ -12,6 +12,7 @@ from .imagemagick import get_info
 class Info:
     url: str
     src: str = ''
+    size: int = 0
     width: int = 0
     height: int = 0
     format: str = ''
@@ -31,13 +32,15 @@ async def process(
 
     if cached_info:
         info = cached_info
-        src = info['__src']
+        src = info.get('__src', '')
+        size = info.get('__size', 0)
         info['__from_cache'] = True
     else:
         image = await fetch(session, url)
 
         info = await get_info(image.data)
         info = info[0]["image"]
+        info['__size'] = size = len(image.data)
         info['__src'] = src = image.src
 
         await cache.set(url, info)
@@ -46,6 +49,7 @@ async def process(
     return Info(
         url=url,
         src=src,
+        size=size,
         width=info["geometry"]["width"],
         height=info["geometry"]["height"],
         format=info["format"],
