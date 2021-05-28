@@ -9,6 +9,7 @@ services:
     volumes:
     - '.:/app'
     environment:
+      PYTHONASYNCIODEBUG: "1"
       REDIS_URL: "redis://redis:6379/0"
   redis:
     image: redis:6

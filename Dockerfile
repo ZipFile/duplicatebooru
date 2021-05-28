@@ -1,7 +1,6 @@
-FROM ubuntu:focal as build-base
+FROM alpine:20210212 as build-base
 
-RUN apt-get update && \
-    apt-get install -y python3-all python3-venv
+RUN apk add --no-cache python3-dev build-base
 
 RUN python3 -m venv /env
 
@@ -13,11 +12,10 @@ COPY requirements.txt /tmp/requirements.txt
 
 RUN pip install -r /tmp/requirements.txt
 
-FROM ubuntu:focal
+FROM alpine:20210212
 
 RUN adduser --system --ingroup users user
-RUN apt-get update && \
-    apt-get install -y ca-certificates imagemagick python3-all
+RUN apk add --no-cache ca-certificates imagemagick optipng python3
 
 COPY --from=build-base /env /env
 
@@ -30,6 +28,5 @@ WORKDIR /app
 RUN pip install --no-deps -e .
 
 USER user:users
-ENV PYTHONASYNCIODEBUG "1"
 
 ENTRYPOINT ["duplicatebooru"]
