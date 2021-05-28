@@ -3,6 +3,8 @@ from asyncio.subprocess import PIPE, create_subprocess_shell
 from json import loads as json_loads
 from typing import Any
 
+from .optipng import optipng
+
 
 class MagickError(Exception):
     def __init__(self, returncode: int, message: str) -> None:
@@ -16,6 +18,7 @@ class MagickError(Exception):
 
 
 async def get_info(image: bytes, timeout: int = 30) -> Any:
+    image = await optipng(image)
     proc = await create_subprocess_shell(
         "convert - json:-",
         stdin=PIPE,
