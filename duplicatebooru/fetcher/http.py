@@ -9,6 +9,7 @@ async def fetch_http(
     session: ClientSession, url: str, *,
     ref: str = '',
     original_url: str = '',
+    hide_src: bool = False,
 ) -> Image:
     if re.match(r"^https?://", url) is None:
         raise UnsupportedURL(url)
@@ -20,6 +21,11 @@ async def fetch_http(
 
     async with session.get(url, headers=headers) as response:
         if response.status == 200:
-            return Image(original_url or url, url, await response.read())
+            return Image(
+                url=original_url or url,
+                src=url,
+                data=await response.read(),
+                hide_src=hide_src,
+            )
 
         raise ImageFetchFailed(response.status, await response.text())

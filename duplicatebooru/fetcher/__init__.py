@@ -11,6 +11,7 @@ class Image:
     url: str
     src: str = ''
     data: bytes = b''
+    hide_src: bool = False
 
 
 class UnsupportedURL(Exception):

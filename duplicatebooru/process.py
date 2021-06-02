@@ -41,7 +41,7 @@ async def process(
         info = await get_info(image.data)
         info = info[0]["image"]
         info['__size'] = size = len(image.data)
-        info['__src'] = src = image.src
+        info['__src'] = src = '' if image.hide_src else image.src
 
         await cache.set(url, info)
         info['__from_cache'] = False

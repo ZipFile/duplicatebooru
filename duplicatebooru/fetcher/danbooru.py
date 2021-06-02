@@ -1,5 +1,5 @@
 import re
-from typing import Optional
+from typing import Optional, TypedDict
 
 from aiohttp import BasicAuth, ClientSession
 
@@ -17,6 +17,24 @@ def get_post_id(url: str) -> Optional[int]:
         return None
 
     return int(m.group(1))
+
+
+class Post(TypedDict):
+    file_url: str
+    is_banned: bool
+    is_deleted: bool
+    tag_string: str
+
+
+def should_hide(post: Post) -> bool:
+    if post.get("is_banned", False):
+        return True
+    if post.get("is_deleted", False):
+        return True
+
+    tags = set(post["tag_string"].split())
+
+    return bool({"loli", "shota"} & tags)
 
 
 def fetch_danbooru_post(
@@ -51,6 +69,11 @@ def fetch_danbooru_post(
         except KeyError:
             raise ImageFetchFailed(f"Post #{post_id} has no image url")
 
-        return await fetch_http(session, url, original_url=original_url)
+        return await fetch_http(
+            session,
+            url,
+            original_url=original_url,
+            hide_src=should_hide(post),
+        )
 
     return fetch
