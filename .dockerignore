@@ -7,3 +7,4 @@ env
 .git
 **/*.pyc
 **/__pycache__
+terraform
