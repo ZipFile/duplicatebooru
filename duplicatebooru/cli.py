@@ -3,7 +3,7 @@ import os
 from distutils.util import strtobool
 from typing import Any, Callable, MutableMapping, Optional
 
-from aiohttp.web import Application, run_app, static
+from aiohttp.web import Application, run_app
 
 from aiohttp_jinja2 import setup as setup_aiohttp_jinja2
 
@@ -70,10 +70,7 @@ def main(debug: bool = True) -> None:
     maybe_set(app, 'danbooru_api_key', 'DANBOORU_API_KEY', default='')
     maybe_set(app, 'danbooru_username', 'DANBOORU_USERNAME', default='')
 
-    static_path = os.path.join(os.path.dirname(__file__), 'static')
-
     app.router.add_routes(routes)
-    app.add_routes([static('/static', static_path)])
 
     redis_url = app['redis_url']
     port = int(os.environ.get('PORT', '8080'))
