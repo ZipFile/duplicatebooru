@@ -17,7 +17,7 @@ form {max-width: 600px; margin: 0 auto;}
 			<label>URLS:</label>
 			<textarea id="urls" name="urls" rows="5" placeholder="https://danbooru.donmai.us/posts/4130166
 https://i.pximg.net/img-original/img/2020/10/03/00/15/02/84758830_p0.jpg
-https://pbs.twimg.com/media/EjUrEb_U4AA6zqs?format=jpg&name=large"></textarea>
+https://pbs.twimg.com/media/EjUrEb_U4AA6zqs?format=jpg&name=large" autofocus></textarea>
 			<button type="submit">Submit</button>
 		</form>
 		<script>
@@ -30,6 +30,10 @@ urls.addEventListener("input", function() {
 	this.style.height = "auto";
 	this.style.height = `${this.scrollHeight + 4}px`;
 }, true);
+
+urls.addEventListener("keydown", function(e) {
+	if (e.keyCode === 13 && (e.ctrlKey || e.metaKey)) e.target.form.submit();
+});
 		</script>
 	</body>
 </html>
