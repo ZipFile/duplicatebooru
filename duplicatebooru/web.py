@@ -77,7 +77,7 @@ class Index(View):
                 info = Info(
                     url=url,
                     error='\n'.join(format_exception(
-                        etype=type(info),
+                        type(info),
                         value=info,
                         tb=info.__traceback__,
                     )),
