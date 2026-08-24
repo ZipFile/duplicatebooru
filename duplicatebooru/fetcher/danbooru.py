@@ -1,16 +1,15 @@
 import re
-from typing import Optional, TypedDict
+from typing import TypedDict
 
-from aiohttp import BasicAuth, ClientSession
+from aiohttp import ClientSession, encode_basic_auth
 
-from . import Image, ImageFetchFailed, ImageFetcher, UnsupportedURL
-from .http import fetch_http
-
+from . import Image, ImageFetcher, ImageFetchFailed, UnsupportedURL
+from .http import USER_AGENT, fetch_http
 
 RE_DANBOORU_POST = re.compile(r"^https?://.+?\.donmai\.us/posts/(\d+)")
 
 
-def get_post_id(url: str) -> Optional[int]:
+def get_post_id(url: str) -> int | None:
     m = RE_DANBOORU_POST.match(url)
 
     if m is None:
@@ -38,16 +37,17 @@ def should_hide(post: Post) -> bool:
 
 
 def fetch_danbooru_post(
-    api_key: str = '',
-    username: str = '',
-    server_url: str = 'https://danbooru.donmai.us',
+    api_key: str = "",
+    username: str = "",
+    server_url: str = "https://danbooru.donmai.us",
+    user_id: int | None = None,
 ) -> ImageFetcher:
-    auth: Optional[BasicAuth]
+    headers = {
+        "User-Agent": make_user_agent(user_id),
+    }
 
     if api_key and username:
-        auth = BasicAuth(username, api_key, 'utf-8')
-    else:
-        auth = None
+        headers["Authorization"] = encode_basic_auth(username, api_key, "utf-8")
 
     async def fetch(session: ClientSession, url: str) -> Image:
         post_id = get_post_id(url)
@@ -56,9 +56,9 @@ def fetch_danbooru_post(
             raise UnsupportedURL(url)
 
         original_url = url
-        url = f'{server_url}/posts/{post_id}.json'
+        url = f"{server_url}/posts/{post_id}.json"
 
-        async with session.get(url, auth=auth) as response:
+        async with session.get(url, headers=headers) as response:
             if response.status != 200:
                 raise ImageFetchFailed(f"Failed to get post #{post_id} info")
 
@@ -74,6 +74,13 @@ def fetch_danbooru_post(
             url,
             original_url=original_url,
             hide_src=should_hide(post),
+            headers=headers,
         )
 
     return fetch
+
+
+def make_user_agent(user_id: int | None = None) -> str:
+    if user_id:
+        return f"{USER_AGENT}; user #{user_id}"
+    return USER_AGENT

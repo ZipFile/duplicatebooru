@@ -1,5 +1,4 @@
 aiohttp
 aiohttp-jinja2
-aioredis
+redis
 cachetools
-typing-extensions

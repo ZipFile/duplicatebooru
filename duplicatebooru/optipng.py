@@ -26,7 +26,7 @@ def _optipng(image: bytes) -> bytes:
 
 
 async def optipng(image: bytes) -> bytes:
-    if image[:4] != b'\x89PNG':
+    if image[:4] != b"\x89PNG":
         return image
 
     return await to_thread(_optipng, image)

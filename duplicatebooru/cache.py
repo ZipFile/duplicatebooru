@@ -1,20 +1,19 @@
 from abc import ABCMeta, abstractmethod
-from json import dumps as json_dumps, loads as json_loads
+from json import dumps as json_dumps
+from json import loads as json_loads
 from typing import Any
 
-from aioredis import Redis
-
-from cachetools import Cache as CTCache, LRUCache
+from cachetools import Cache as CTCache
+from cachetools import LRUCache
+from redis.asyncio import Redis
 
 
 class Cache(metaclass=ABCMeta):
     @abstractmethod
-    async def get(self, url: str) -> Any:
-        ...
+    async def get(self, url: str) -> Any: ...
 
     @abstractmethod
-    async def set(self, url: str, data: Any) -> None:
-        ...
+    async def set(self, url: str, data: Any) -> None: ...
 
 
 class NoopCache(Cache):
@@ -46,7 +45,7 @@ class RedisCache(Cache):
         self.redis = redis
 
     async def get(self, url: str) -> Any:
-        data = await self.redis.get(url, encoding="utf-8")
+        data = await self.redis.get(url)
 
         if data:
             return json_loads(data)

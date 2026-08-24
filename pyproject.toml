@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+requires-python = ">=3.10"
+dynamic = ["dependencies", "version"]
+name = "duplicatebooru"
+description = "Detect pixel-identical images"
+license = "BSD-2-Clause"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Framework :: AsyncIO",
+    "Operating System :: POSIX",
+]
+
+[project.scripts]
+duplicatebooru = "duplicatebooru.cli:main"
+
+[tool.setuptools]
+packages = ["duplicatebooru"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.in"] }
+version = { attr = "duplicatebooru.__version__"}
+
+[tool.isort]
+profile = "black"

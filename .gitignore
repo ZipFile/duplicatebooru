@@ -2,5 +2,7 @@ build/
 dist/
 *.egg-info/
 env/
+.env
 __pycache__/
 *.py[cod]
+.idea/

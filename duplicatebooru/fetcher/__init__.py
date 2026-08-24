@@ -1,16 +1,14 @@
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Protocol, Sequence
 
 from aiohttp import ClientSession
-
-from typing_extensions import Protocol
 
 
 @dataclass
 class Image:
     url: str
-    src: str = ''
-    data: bytes = b''
+    src: str = ""
+    data: bytes = b""
     hide_src: bool = False
 
 

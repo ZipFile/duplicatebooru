@@ -4,7 +4,9 @@ Dockerfile
 docker-compose.yml
 *.egg-info
 env
+.env
 .git
 **/*.pyc
 **/__pycache__
 terraform
+.idea

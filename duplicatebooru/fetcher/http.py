@@ -2,19 +2,28 @@ import re
 
 from aiohttp import ClientSession
 
+from .. import __version__
 from . import Image, ImageFetchFailed, UnsupportedURL
+
+USER_AGENT = f"duplicatebooru/{__version__}"
 
 
 async def fetch_http(
-    session: ClientSession, url: str, *,
-    ref: str = '',
-    original_url: str = '',
+    session: ClientSession,
+    url: str,
+    *,
+    ref: str = "",
+    original_url: str = "",
     hide_src: bool = False,
+    headers: dict | None = None,
 ) -> Image:
     if re.match(r"^https?://", url) is None:
         raise UnsupportedURL(url)
 
-    headers = {}
+    if headers:
+        headers = headers.copy()
+    else:
+        headers = {}
 
     if ref:
         headers["Referer"] = ref
